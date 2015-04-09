@@ -110,9 +110,9 @@ C<B<Meth>od>, which is the distinctive feature of this module.
 
 The module exports a single variable C<$j>. To encode/decode JSON,
 simply make a method call on your data, with C<$j> as
-the name of the method (see SYNOPSIS).
+the name of the method (see SYNOPSIS and THE MAGIC sections).
 
-=head2 THE MAGIC
+=head1 THE MAGIC
 
 The result of the last decode/encode operation is stored internally
 by the module and you can access that data by using C<$j> variable

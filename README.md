@@ -1,6 +1,6 @@
 # NAME
 
-JSON::Meth - no-nonsense JSON encoding/decoding as method calls on data
+JSON::Meth - no nonsense JSON encoding/decoding as method calls on data
 
 # SYNOPSIS
 
@@ -16,6 +16,23 @@ JSON::Meth - no-nonsense JSON encoding/decoding as method calls on data
     # decode JSON
     my $perl_structure = '["look","ma!","no","vars"]'->$j;
 
+    # encode and interpolate $j in a string to get the result
+    { my => 'data' }->$j;
+    say "Look ma, JSON: $j";
+
+    # decode and grab a piece of data, as if $j were a hashref:
+    my $data = '{"my":"data"}'->$j->{my}; # $data contains string "data" now
+
+    # just pretend $j is an arrayref:
+    '["woo","hoo!"]'->$j;
+    say for @$j;
+
+    # go nuts! (outputs JSON string '["bar",{"ber":"beer"}]')
+    say '{"foo":["bar",{"ber":"beer"}]}'->$j->{foo}->$j;
+
+    # event this works!! Meth? Not even once!
+    say '["woo","hoo!"]'->$j->$j->$j->$j;
+
 <div>
     </div></div>
 </div>
@@ -26,13 +43,23 @@ Don't make me think and give me what I want! This module automatically
 figures out whether you want to encode a Perl data structure to JSON
 or decode a JSON string to a Perl data structure.
 
+The name `JSON::Meth` is formed from
+`**Meth**od`, which is the distinctive feature of this module.
+
 # EXPORTS
 
 ## `$j` variable
 
 The module exports a single variable `$j`. To encode/decode JSON,
 simply make a method call on your data, with `$j` as
-the name of the method (see SYNOPSIS).
+the name of the method (see SYNOPSIS and THE MAGIC sections).
+
+# THE MAGIC
+
+The result of the last decode/encode operation is stored internally
+by the module and you can access that data by using `$j` variable
+as if it contained that result. To get the results of **encode** operation,
+simply stringify `$j` (e.g. by interpolating it: `"$j"`).
 
 # PREFIX/POSTFIX
 
@@ -43,6 +70,28 @@ If you're not a fan of postfix decoding, just use `$j` as a prefix call:
 
     # decode JSON
     my $perl_structure = $j->( '["look","ma!","no","vars"]' );
+
+<div>
+    <div style="background: url(http://zoffix.com/CPAN/Dist-Zilla-Plugin-Pod-Spiffy/icons/hr.png);height: 18px;"></div>
+</div>
+
+# CAVEATS
+
+The way this module deals with encoding objects is thusly:
+
+- if you're calling `->$j` on an object, it needs to
+implement stringification [overload](https://metacpan.org/pod/overload)ing and what it stringifies to
+will be decoded.
+- if you have an object somewhere inside a data structure you're
+encoding: if
+it implements `TO_JSON` method, that method will be called, and the data
+returned used as json string to replace the object; if it doesn't
+implement such a method, it will be replaced with `null`
+
+# SEE ALSO
+
+For more full-featured encoders, see [JSON::MaybeXS](https://metacpan.org/pod/JSON::MaybeXS),
+[Mojo::JSON](https://metacpan.org/pod/Mojo::JSON), or [Mojo::JSON::MaybeXS](https://metacpan.org/pod/Mojo::JSON::MaybeXS).
 
 <div>
     <div style="background: url(http://zoffix.com/CPAN/Dist-Zilla-Plugin-Pod-Spiffy/icons/hr.png);height: 18px;"></div>
