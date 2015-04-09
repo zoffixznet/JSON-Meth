@@ -1,5 +1,8 @@
 Revision history for JSON-Meth
 
+1.001003  2015-04-10
+        - Implemented proper handling of objects
+
 1.001002  2015-04-09
         - Added magic to $j, so we can pull results of encode/decode
           right out of it

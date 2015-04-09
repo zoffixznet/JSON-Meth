@@ -7,6 +7,7 @@ use warnings;
 
 use JSON::MaybeXS;
 use Carp;
+use Scalar::Util qw/blessed/;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw($j);
@@ -19,21 +20,31 @@ use overload q{""}  => sub { $data },
 
 our $j = bless sub {
     my $in = shift;
-    return $data = decode_json $in
-        unless ref $in;
 
-    return $data = encode_json $in
+    my $json = JSON::MaybeXS->new(
+        convert_blessed => 1,
+        allow_blessed   => 1,
+    );
+
+    # plain data or object at root; just encode it
+    return $data = $json->decode($in)
+        if not ref $in
+            or ( blessed $in and blessed $in ne 'JSON::Meth' );
+
+    return $data = $json->encode($in)
         unless ref $in eq 'JSON::Meth';
+
+    # if we got up to here, then we're dealing with a $j->$j call
 
     defined $data
     or croak 'You tried to call $j->$j, but $j does not have any data '
         . ' stored. You need at least one encode/decode call prior to '
         . ' this, for $j->$j to work.';
 
-    return $data = decode_json $data
+    return $data = $json->decode($data)
         unless ref $data;
 
-    return $data = encode_json $data;
+    return $data = $json->encode($data);
 }, 'JSON::Meth';
 
 q{
@@ -45,7 +56,7 @@ __END__
 
 =encoding utf8
 
-=for stopwords Znet Zoffix JSON  postfix
+=for stopwords Znet Zoffix JSON  postfix  ing
 
 =head1 NAME
 
@@ -54,6 +65,8 @@ JSON::Meth - no nonsense JSON encoding/decoding as method calls on data
 =head1 SYNOPSIS
 
 =for pod_spiffy start code section
+
+=for test_synopsis use feature 'say';
 
     use JSON::Meth;
 
@@ -75,10 +88,10 @@ JSON::Meth - no nonsense JSON encoding/decoding as method calls on data
     say for @$j;
 
     # go nuts! (outputs JSON string '["bar",{"ber":"beer"}]')
-    say '{"foo":["bar",{"ber":"beer"}]}'->$j->{foo}->$j
+    say '{"foo":["bar",{"ber":"beer"}]}'->$j->{foo}->$j;
 
     # event this works!! Meth? Not even once!
-    say '["woo","hoo!"]'->$j->$j->$j->$j
+    say '["woo","hoo!"]'->$j->$j->$j->$j;
 
 =for pod_spiffy end code section
 
@@ -115,6 +128,31 @@ If you're not a fan of postfix decoding, just use C<$j> as a prefix call:
 
     # decode JSON
     my $perl_structure = $j->( '["look","ma!","no","vars"]' );
+
+=for pod_spiffy hr
+
+=head1 CAVEATS
+
+The way this module deals with encoding objects is thusly:
+
+=over 4
+
+=item * if you're calling C<< ->$j >> on an object, it needs to
+implement stringification L<overload>ing and what it stringifies to
+will be decoded.
+
+=item * if you have an object somewhere inside a data structure you're
+encoding: if
+it implements C<TO_JSON> method, that method will be called, and the data
+returned used as json string to replace the object; if it doesn't
+implement such a method, it will be replaced with C<null>
+
+=back
+
+=head1 SEE ALSO
+
+For more full-featured encoders, see L<JSON::MaybeXS>,
+L<Mojo::JSON>, or L<Mojo::JSON::MaybeXS>.
 
 =for pod_spiffy hr
 
