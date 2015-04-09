@@ -6,12 +6,35 @@ use warnings;
 # VERSION
 
 use JSON::MaybeXS;
-
+use Carp;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw($j);
 
-our $j = sub { ref $_[0] ? encode_json $_[0] : decode_json $_[0] };
+my $data;
+
+use overload q{""}  => sub { $data },
+             q{@{}} => sub { $data },
+             q{%{}} => sub { $data };
+
+our $j = bless sub {
+    my $in = shift;
+    return $data = decode_json $in
+        unless ref $in;
+
+    return $data = encode_json $in
+        unless ref $in eq 'JSON::Meth';
+
+    defined $data
+    or croak 'You tried to call $j->$j, but $j does not have any data '
+        . ' stored. You need at least one encode/decode call prior to '
+        . ' this, for $j->$j to work.';
+
+    return $data = decode_json $data
+        unless ref $data;
+
+    return $data = encode_json $data;
+}, 'JSON::Meth';
 
 q{
     Q: How many programmers does it take to change a light bulb?
@@ -26,7 +49,7 @@ __END__
 
 =head1 NAME
 
-JSON::Meth - no-nonsense JSON encoding/decoding as method calls on data
+JSON::Meth - no nonsense JSON encoding/decoding as method calls on data
 
 =head1 SYNOPSIS
 
@@ -40,6 +63,23 @@ JSON::Meth - no-nonsense JSON encoding/decoding as method calls on data
     # decode JSON
     my $perl_structure = '["look","ma!","no","vars"]'->$j;
 
+    # encode and interpolate $j in a string to get the result
+    { my => 'data' }->$j;
+    say "Look ma, JSON: $j";
+
+    # decode and grab a piece of data, as if $j were a hashref:
+    my $data = '{"my":"data"}'->$j->{my}; # $data contains string "data" now
+
+    # just pretend $j is an arrayref:
+    '["woo","hoo!"]'->$j;
+    say for @$j;
+
+    # go nuts! (outputs JSON string '["bar",{"ber":"beer"}]')
+    say '{"foo":["bar",{"ber":"beer"}]}'->$j->{foo}->$j
+
+    # event this works!! Meth? Not even once!
+    say '["woo","hoo!"]'->$j->$j->$j->$j
+
 =for pod_spiffy end code section
 
 =head1 DESCRIPTION
@@ -48,6 +88,9 @@ Don't make me think and give me what I want! This module automatically
 figures out whether you want to encode a Perl data structure to JSON
 or decode a JSON string to a Perl data structure.
 
+The name C<JSON::Meth> is formed from
+C<B<Meth>od>, which is the distinctive feature of this module.
+
 =head1 EXPORTS
 
 =head2 C<$j> variable
@@ -55,6 +98,13 @@ or decode a JSON string to a Perl data structure.
 The module exports a single variable C<$j>. To encode/decode JSON,
 simply make a method call on your data, with C<$j> as
 the name of the method (see SYNOPSIS).
+
+=head2 THE MAGIC
+
+The result of the last decode/encode operation is stored internally
+by the module and you can access that data by using C<$j> variable
+as if it contained that result. To get the results of B<encode> operation,
+simply stringify C<$j> (e.g. by interpolating it: C<"$j">).
 
 =head1 PREFIX/POSTFIX
 
