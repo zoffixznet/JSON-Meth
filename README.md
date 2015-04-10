@@ -54,6 +54,14 @@ The module exports a single variable `$j`. To encode/decode JSON,
 simply make a method call on your data, with `$j` as
 the name of the method (see SYNOPSIS and THE MAGIC sections).
 
+## `$json` variable
+
+    use JSON::Meth '$json';
+
+An alias to `$j` that is exported upon request (`$j` won't be
+exported in this case, unless you ask for it too). Use this if you
+want to make your code more readable.
+
 # THE MAGIC
 
 The result of the last decode/encode operation is stored internally

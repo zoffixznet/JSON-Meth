@@ -58,7 +58,7 @@ __END__
 
 =encoding utf8
 
-=for stopwords Znet Zoffix JSON  postfix  ing
+=for stopwords Znet Zoffix JSON  postfix ing thusly
 
 =head1 NAME
 
