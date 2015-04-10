@@ -8,6 +8,9 @@ use Test::Deep;
 use JSON::Meth;
 use JSON::MaybeXS;
 
+eval '[42]->$json';
+like $@, qr/requires explicit/, '$json is not exported by default';
+
 my $data = {
     foo => 'bar',
     baz => 'ber',
