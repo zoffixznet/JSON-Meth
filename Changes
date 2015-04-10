@@ -1,5 +1,8 @@
 Revision history for JSON-Meth
 
+1.001004  2015-04-11
+        - Added $json optional export variable
+
 1.001003  2015-04-10
         - Implemented proper handling of objects
 

@@ -11,6 +11,7 @@ use Scalar::Util qw/blessed/;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw($j);
+our @EXPORT_OK = qw($json);
 
 my $data;
 
@@ -18,7 +19,8 @@ use overload q{""}  => sub { $data },
              q{@{}} => sub { $data },
              q{%{}} => sub { $data };
 
-our $j = bless sub {
+our ( $json, $j );
+$json = $j = bless sub {
     my $in = shift;
 
     my $json = JSON::MaybeXS->new(
@@ -111,6 +113,14 @@ C<B<Meth>od>, which is the distinctive feature of this module.
 The module exports a single variable C<$j>. To encode/decode JSON,
 simply make a method call on your data, with C<$j> as
 the name of the method (see SYNOPSIS and THE MAGIC sections).
+
+=head2 C<$json> variable
+
+    use JSON::Meth '$json';
+
+An alias to C<$j> that is exported upon request (C<$j> won't be
+exported in this case, unless you ask for it too). Use this if you
+want to make your code more readable.
 
 =head1 THE MAGIC
 
