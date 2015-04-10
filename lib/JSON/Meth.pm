@@ -92,7 +92,7 @@ JSON::Meth - no nonsense JSON encoding/decoding as method calls on data
     # go nuts! (outputs JSON string '["bar",{"ber":"beer"}]')
     say '{"foo":["bar",{"ber":"beer"}]}'->$j->{foo}->$j;
 
-    # event this works!! Meth? Not even once!
+    # even this works!! Meth? Not even once!
     say '["woo","hoo!"]'->$j->$j->$j->$j;
 
 =for pod_spiffy end code section
