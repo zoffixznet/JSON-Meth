@@ -23,17 +23,17 @@ our ( $json, $j );
 $json = $j = bless sub {
     my $in = shift;
 
-    my $json = JSON::MaybeXS->new(
+    my $json_obj = JSON::MaybeXS->new(
         convert_blessed => 1,
         allow_blessed   => 1,
     );
 
     # plain data or object at root; just encode it
-    return $data = $json->decode($in)
+    return $data = $json_obj->decode($in)
         if not ref $in
             or ( blessed $in and blessed $in ne 'JSON::Meth' );
 
-    return $data = $json->encode($in)
+    return $data = $json_obj->encode($in)
         unless ref $in eq 'JSON::Meth';
 
     # if we got up to here, then we're dealing with a $j->$j call
@@ -43,10 +43,10 @@ $json = $j = bless sub {
         . ' stored. You need at least one encode/decode call prior to '
         . ' this, for $j->$j to work.';
 
-    return $data = $json->decode($data)
+    return $data = $json_obj->decode($data)
         unless ref $data;
 
-    return $data = $json->encode($data);
+    return $data = $json_obj->encode($data);
 }, 'JSON::Meth';
 
 q{
