@@ -6,6 +6,7 @@ use warnings;
 # VERSION
 
 use JSON::MaybeXS;
+use 5.008001;
 use Carp;
 use Scalar::Util qw/blessed/;
 require Exporter;
