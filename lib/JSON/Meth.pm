@@ -22,6 +22,7 @@ use overload q{""}  => sub { $data },
 our ( $json, $j );
 $json = $j = bless sub {
     my $in = shift;
+    return undef unless defined $in;
 
     my $json_obj = JSON::MaybeXS->new(
         convert_blessed => 1,
