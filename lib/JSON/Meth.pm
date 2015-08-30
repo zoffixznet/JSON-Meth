@@ -49,7 +49,7 @@ $json = $j = bless sub {
         unless ref $data;
 
     return $data = $json_obj->encode($data);
-}, 'JSON::Meth';
+}, __PACKAGE__;
 
 q{
     Q: How many programmers does it take to change a light bulb?

@@ -1,5 +1,8 @@
 Revision history for JSON-Meth
 
+1.001006  2015-08-29
+        - Avoid hardcoding package name, for subclassing
+
 1.001005  2015-08-10
         - Handle undefs correctly
 
