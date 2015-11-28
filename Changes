@@ -1,5 +1,9 @@
 Revision history for JSON-Meth
 
+1.001007  2015-11-28
+        - Fix test failures due to newer Cpanel::JSON::XS version
+             stringifying objects
+
 1.001006  2015-08-29
         - Avoid hardcoding package name, for subclassing
 
